@@ -399,7 +399,9 @@ def test_the_tooltip_gives_both_readings(client):
     Feature: Coverage chart — the tooltip does not depend on the axis.
     """
     body = client.get(PAGE).text
-    assert 'point.count + " chunks left" + share' in body
+    # The count now states the whole it is part of, so the assertion follows the line it
+    # moved to. The requirement recorded above is unchanged.
+    assert '", " + left + share' in body
     assert 'Math.round(point.share) + "%)"' in body
 
 
@@ -480,3 +482,21 @@ def test_the_table_opens_thinnest_first(client):
     """
     body = client.get(PAGE).text
     assert "sortRows(tbody, rows, COLUMNS[1], true);" in body
+
+
+def test_the_tooltip_says_what_the_count_is_out_of(client):
+    """
+    Intent: How many chunks are left says nothing about how big the badge is — 45 left is
+        most of a small badge and a corner of a large one, and the two want different
+        decisions. The percentage axis makes that comparison but rounds it away, and a
+        percentage is the figure people check against the count behind it.
+    Success: The tooltip states the count against the badge's whole chunk set, as "45 of 90
+        chunks left", and falls back to the count alone for a badge that resolves to no
+        chunks at all and so has no whole to be part of.
+    Feature: Coverage chart — the count is stated against the whole.
+    """
+    body = client.get(PAGE).text
+    assert 'point.count + " of " + point.whole + " chunks left"' in body
+    assert 'whole: chunkWhole(row)' in body
+    assert "return (row.pages_used || 0) + row.pages_available;" in body
+    assert 'point.whole\n                ? point.count' in body

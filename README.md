@@ -825,8 +825,10 @@ to state, which is a different thing from nought per cent left, so it leaves the
 that reading rather than sitting at the left-hand edge among the badges whose material is
 spent. Switching moves the existing bubbles rather than building a new chart, so the badge
 being looked at is not lost in a redraw, and the tooltip gives the count and the share
-together whichever axis is showing: a percentage with no count behind it is the number
-people mistrust, since 50% left is four chunks on one badge and 120 on another.
+together whichever axis is showing — "45 of 90 chunks left (50%)". A percentage with no
+count behind it is the number people mistrust, since 50% left is four chunks on one badge
+and 120 on another; and a count with no whole behind it says nothing about the size of the
+badge, since 45 left is most of a small one and a corner of a large one.
 
 The bubble is sized by **area**, which is the usual way a bubble chart lies: Chart.js takes a
 radius, so the radius is the square root of the badge's share of the fullest badge, or a badge

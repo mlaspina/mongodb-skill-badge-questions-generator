@@ -198,9 +198,14 @@ const X_MODES = {
 // A badge resolving to no chunks at all has no share to state, which is not the same as
 // nought per cent left, so it gets none and is dropped from that reading.
 function chunkShare(row) {
-  const whole = (row.pages_used || 0) + row.pages_available;
+  const whole = chunkWhole(row);
   if (!whole) return null;
   return (row.pages_available / whole) * 100;
+}
+
+// Everything that badge resolves to: what has been walked and what is left.
+function chunkWhole(row) {
+  return (row.pages_used || 0) + row.pages_available;
 }
 
 // Which reading the x axis is showing. The chart is redrawn against it rather than
@@ -224,6 +229,9 @@ function drawHeatmap(canvas, rows) {
     // plus what is left. A badge that resolves to no chunks at all has no share to state,
     // which is a different thing from nought per cent left, so it has none.
     share: chunkShare(row),
+    // The denominator the share is taken over, kept so the tooltip can state it: the
+    // count on its own says how much is left and not how much there ever was.
+    whole: chunkWhole(row),
     y: row.total,
     r: bubbleRadius(row.total, largest),
     slug: row.skill_badge,
@@ -264,8 +272,14 @@ function drawHeatmap(canvas, rows) {
               const point = item.raw;
               const questions = point.y === 1 ? " question" : " questions";
               const share = point.share === null ? "" : " (" + Math.round(point.share) + "%)";
-              return point.name + " — " + point.y + questions + ", " +
-                point.count + " chunks left" + share;
+              // "45 of 90 chunks left" rather than "45 chunks left": how much is left says
+              // nothing about how big the badge is, and 45 left is most of a small badge
+              // and a corner of a large one. A badge that resolves to no chunks at all has
+              // no whole to be part of, so it says the count alone.
+              const left = point.whole
+                ? point.count + " of " + point.whole + " chunks left"
+                : point.count + " chunks left";
+              return point.name + " — " + point.y + questions + ", " + left + share;
             },
           },
         },
